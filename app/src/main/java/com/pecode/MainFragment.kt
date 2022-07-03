@@ -12,17 +12,15 @@ import android.widget.TextView
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.add
-import androidx.fragment.app.commit
 
 
 class MainFragment : Fragment() {
-
     private lateinit var countText: TextView
     private lateinit var plusImg: ImageView
     private lateinit var minusImg: ImageView
     private lateinit var lineMinus: ImageView
     private lateinit var createNotBtn: TextView
+    private val fragmentCount: Int = allFragments.count
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,8 +37,6 @@ class MainFragment : Fragment() {
         lineMinus = getView()?.findViewById(R.id.line3_img) as ImageView
         createNotBtn = getView()?.findViewById(R.id.create_notification_text) as TextView
 
-        allFragments.fragmentsList.add(this)
-        val fragmentCount = allFragments.fragmentsList.size
         countText.text = fragmentCount.toString()
 
         if (fragmentCount == 1) {
@@ -51,22 +47,21 @@ class MainFragment : Fragment() {
             lineMinus.visibility = View.VISIBLE
         }
 
+
         plusImg.setOnClickListener {
-            fragmentManager?.commit {
-                setReorderingAllowed(true)
-                add<MainFragment>(R.id.fragmentContainerView)
-            }
+            allFragments.count++
+            allFragments.fragmentsList.add(MainFragment())
+            allFragments.pagerAdapter[0].notifyDataSetChanged()
+            (activity as MainActivity).viewPager.setCurrentItem(allFragments.count, true)
         }
 
-        minusImg.setOnClickListener(View.OnClickListener {
-            fragmentManager?.commit {
-                setReorderingAllowed(true)
-                remove(allFragments.fragmentsList[fragmentCount - 1])
-            }
-            allFragments.fragmentsList.remove(this)
-
+        minusImg.setOnClickListener {
+            allFragments.count--
+            (activity as MainActivity).viewPager.setCurrentItem(allFragments.count-1, true)
+            allFragments.fragmentsList.remove(allFragments.fragmentsList.last())
+            allFragments.pagerAdapter[0].notifyDataSetChanged()
         }
-        )
+
 
 
         createNotBtn.setOnClickListener(View.OnClickListener {
