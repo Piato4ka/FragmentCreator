@@ -2,13 +2,9 @@ package com.pecode
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.*
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.viewpager.widget.PagerAdapter
+
 import androidx.viewpager.widget.ViewPager
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
+
 
 class MainActivity : AppCompatActivity() {
     lateinit var viewPager: ViewPager
@@ -18,12 +14,23 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         if (savedInstanceState == null) {
             viewPager = findViewById(R.id.pager)
-            allFragments.fragmentsList.add(MainFragment())
+
 
             val pagerAdapter = ScreenSlidePagerAdapter(supportFragmentManager)
             allFragments.pagerAdapter.add(pagerAdapter)
             viewPager.adapter = allFragments.pagerAdapter[0]
+
+
+            var fragmentNumberEx = intent.getIntExtra("fragmentNumber", 1)
+
+
+            for (i in 1..fragmentNumberEx) {
+                allFragments.count++
+                allFragments.fragmentsList.add(MainFragment())
+                allFragments.pagerAdapter[0].notifyDataSetChanged()
+            }
         }
     }
-
 }
+
+

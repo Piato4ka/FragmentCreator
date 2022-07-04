@@ -2,7 +2,6 @@ package com.pecode
 
 import android.app.PendingIntent
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -49,8 +48,12 @@ class MainFragment : Fragment() {
 
 
         plusImg.setOnClickListener {
+
             allFragments.count++
             allFragments.fragmentsList.add(MainFragment())
+
+
+
             allFragments.pagerAdapter[0].notifyDataSetChanged()
             (activity as MainActivity).viewPager.setCurrentItem(allFragments.count, true)
         }
@@ -58,6 +61,7 @@ class MainFragment : Fragment() {
         minusImg.setOnClickListener {
             allFragments.count--
             (activity as MainActivity).viewPager.setCurrentItem(allFragments.count-1, true)
+            NotificationManagerCompat.from(requireActivity()).cancel(allFragments.fragmentsList.size)
             allFragments.fragmentsList.remove(allFragments.fragmentsList.last())
             allFragments.pagerAdapter[0].notifyDataSetChanged()
         }
@@ -66,40 +70,25 @@ class MainFragment : Fragment() {
 
         createNotBtn.setOnClickListener(View.OnClickListener {
 
-            val channelId = 12345
+            val channelId = "channelId"
             val description = "Notification $fragmentCount"
+            val headline = "Chat heads active"
 
-            val GROUP_KEY_WORK_EMAIL = "com.android.example.WORK_EMAIL"
             val notificationIntent = Intent(context, MainActivity::class.java)
-            val pendingIntent: PendingIntent?
-            pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                PendingIntent.getActivity(
-                    context,
-                    0,
-                    notificationIntent,
-                    PendingIntent.FLAG_MUTABLE
-                )
-            } else {
-                PendingIntent.getActivity(
-                    context,
-                    0,
-                    notificationIntent,
-                    PendingIntent.FLAG_ONE_SHOT
-                )
-            }
-
+            notificationIntent.putExtra("fragmentNumber", fragmentCount)
 
             notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER)
 
+            val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_MUTABLE)
 
-            val sdsd = NotificationCompat.Builder(requireActivity(), channelId.toString())
+            val notificationManager = NotificationCompat.Builder(requireActivity(), channelId)
+                .setContentTitle(headline)
                 .setContentText(description)
                 .setSmallIcon(R.drawable.ic_launcher_background)
-                .setGroup(GROUP_KEY_WORK_EMAIL)
                 .setContentIntent(pendingIntent)
                 .build()
             NotificationManagerCompat.from(requireActivity()).apply {
-                notify(channelId, sdsd)
+                notify(fragmentCount, notificationManager)
             }
         })
     }
