@@ -1,5 +1,6 @@
 package com.pecode
 
+
 import android.app.PendingIntent
 import android.content.Intent
 import android.os.Bundle
@@ -19,7 +20,7 @@ class MainFragment : Fragment() {
     private lateinit var minusImg: ImageView
     private lateinit var lineMinus: ImageView
     private lateinit var createNotBtn: TextView
-    private val fragmentCount: Int = allFragments.count
+    private val fragmentCount: Int = databaseImit.count
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,31 +47,23 @@ class MainFragment : Fragment() {
             lineMinus.visibility = View.VISIBLE
         }
 
-
         plusImg.setOnClickListener {
-
-            allFragments.count++
-            allFragments.fragmentsList.add(MainFragment())
-
-
-
-            allFragments.pagerAdapter[0].notifyDataSetChanged()
-            (activity as MainActivity).viewPager.setCurrentItem(allFragments.count, true)
+            databaseImit.count++
+            databaseImit.fragmentsList.add(MainFragment())
+            databaseImit.pagerAdapter[0].notifyDataSetChanged()
+            (activity as MainActivity).viewPager.setCurrentItem(databaseImit.count, true)
         }
 
         minusImg.setOnClickListener {
-            allFragments.count--
-            (activity as MainActivity).viewPager.setCurrentItem(allFragments.count-1, true)
-            NotificationManagerCompat.from(requireActivity()).cancel(allFragments.fragmentsList.size)
-            allFragments.fragmentsList.remove(allFragments.fragmentsList.last())
-            allFragments.pagerAdapter[0].notifyDataSetChanged()
+            databaseImit.count--
+            (activity as MainActivity).viewPager.setCurrentItem(databaseImit.count - 1, true)
+            NotificationManagerCompat.from(requireActivity())
+                .cancel(databaseImit.fragmentsList.size)
+            databaseImit.fragmentsList.remove(databaseImit.fragmentsList.last())
+            databaseImit.pagerAdapter[0].notifyDataSetChanged()
         }
 
-
-
         createNotBtn.setOnClickListener(View.OnClickListener {
-
-            val channelId = "channelId"
             val description = "Notification $fragmentCount"
             val headline = "Chat heads active"
 
@@ -79,9 +72,16 @@ class MainFragment : Fragment() {
 
             notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER)
 
-            val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_MUTABLE)
+            val pendingIntent =
+                PendingIntent.getActivity(
+                    context,
+                    fragmentCount,
+                    notificationIntent,
+                    PendingIntent.FLAG_MUTABLE
+                )
 
-            val notificationManager = NotificationCompat.Builder(requireActivity(), channelId)
+            val notificationManager = NotificationCompat.Builder(requireActivity())
+                .setChannelId(getString(R.string.channel_name))
                 .setContentTitle(headline)
                 .setContentText(description)
                 .setSmallIcon(R.drawable.ic_launcher_background)
